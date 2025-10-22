@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import ImagemBG from "./assets/Constallation.png";
+import ImagemBG from "./assets/constellation.png";
 import Logo from "../../../assets/logo-color.png";
 import "./styles.css";
 import { useRouter } from "next/navigation";
