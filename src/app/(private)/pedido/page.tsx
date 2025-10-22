@@ -153,9 +153,9 @@ export default function PedidoSucesso() {
           </div>
           <div className="flex-1">
             <h1 className="text-2xl md:text-3xl font-bold text-green-700">Solicitação realizada com sucesso!</h1>
-            <p className="text-gray-600 mt-1">
-              Sua entrega está sendo preparada, em breve retornaremos. Essa pagina é uma demonstração, toda a ação e
-              produtos são somente demonstrativos
+            <p className="text-gray-600 mt-1">Sua entrega está sendo preparada, em breve retornaremos.</p>
+            <p className="text-red-300 mt-1">
+              Essa pagina é uma demonstração, toda a ação e produtos são somente demonstrativos
             </p>
             <div className="mt-3 text-sm text-gray-500 flex flex-col sm:flex-row gap-2 sm:gap-4">
               <span>
