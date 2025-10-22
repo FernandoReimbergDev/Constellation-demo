@@ -1,0 +1,278 @@
+"use client";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Container } from "../../components/Container";
+import { useEffect, useMemo, useState } from "react";
+import { Check } from "lucide-react";
+
+type Produto = {
+  productName: string;
+  color: string;
+  size: string;
+  price: number;
+  images: string[];
+};
+
+type EnderecoEntrega = {
+  contato_entrega: string;
+  logradouro: string;
+  numero: string;
+  bairro: string;
+  municipio: string;
+  uf: string;
+  cep: string;
+};
+
+export default function PedidoSucesso() {
+  const router = useRouter();
+  const [produto, setProduto] = useState<Produto | null>(null);
+  const [entrega, setEntrega] = useState<EnderecoEntrega | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [orderId, setOrderId] = useState<string>("");
+
+  // Gera um ID de pedido simples (mock) e data formatada
+  useEffect(() => {
+    setOrderId(typeof window !== "undefined" ? `CT-${Date.now().toString(36).toUpperCase()}` : "CT-XXXXXX");
+  }, []);
+
+  // Carrega dados do localStorage
+  useEffect(() => {
+    try {
+      const produtoStorage = localStorage.getItem("produtoSelecionado");
+      const entregaStorage = localStorage.getItem("dadosEntrega");
+
+      if (produtoStorage) setProduto(JSON.parse(produtoStorage));
+      if (entregaStorage) setEntrega(JSON.parse(entregaStorage));
+    } catch (e) {
+      console.error("Falha ao ler localStorage:", e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const precoFormatado = useMemo(() => {
+    const valor = produto?.price ?? 0;
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+    }).format(valor);
+  }, [produto]);
+
+  const dataPedido = useMemo(() => {
+    return new Intl.DateTimeFormat("pt-BR", {
+      dateStyle: "long",
+      timeStyle: "short",
+    }).format(new Date());
+  }, []);
+
+  function handleImprimir() {
+    window.print();
+  }
+
+  function handleNovaCompra() {
+    // opcional: limpar dados do pedido atual
+    // localStorage.removeItem("produtoSelecionado");
+    // localStorage.removeItem("dadosEntrega");
+    router.push("/produtos");
+  }
+
+  // Estado de carregamento (skeleton)
+  if (loading) {
+    return (
+      <div className="w-full min-h-[calc(100vh-142px)] lg:min-h-[calc(100vh-153px)] bg-gray-50 flex items-center justify-center py-12">
+        <Container>
+          <div className="mx-auto max-w-3xl w-full bg-white rounded-2xl shadow-md p-8 animate-pulse">
+            <div className="h-7 w-40 bg-gray-200 rounded mb-6" />
+            <div className="h-5 w-64 bg-gray-200 rounded mb-2" />
+            <div className="h-5 w-52 bg-gray-200 rounded mb-8" />
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="h-48 bg-gray-100 rounded-xl" />
+              <div className="h-48 bg-gray-100 rounded-xl" />
+            </div>
+            <div className="h-10 w-48 bg-gray-200 rounded mt-8" />
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
+  // Estado sem dados (fallback profissional)
+  if (!produto || !entrega) {
+    return (
+      <div className="w-full min-h-[calc(100vh-142px)] lg:min-h-[calc(100vh-153px)] bg-gray-50 flex items-center justify-center py-12">
+        <Container>
+          <div className="mx-auto max-w-xl w-full bg-white rounded-2xl shadow-md p-10 text-center">
+            <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-yellow-100 flex items-center justify-center">
+              <span className="text-yellow-600 text-2xl">!</span>
+            </div>
+            <h1 className="text-xl font-semibold text-gray-800 mb-2">Não encontramos os dados do pedido</h1>
+            <p className="text-gray-600">
+              Parece que esta página foi acessada sem finalizar a seleção do produto ou os dados de entrega.
+            </p>
+            <button
+              onClick={() => router.push("/produtos")}
+              className="mt-6 inline-flex items-center justify-center rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5"
+            >
+              Voltar para a loja
+            </button>
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
+  return (
+    <Container>
+      <div className="mx-auto max-w-5xl">
+        {/* Header de sucesso */}
+        <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 mb-6">
+          <div className="flex items-center justify-center h-14 w-14 rounded-full bg-green-100 shrink-0">
+            {/* Ícone de sucesso */}
+            <Check size={32} className="text-green-800" strokeWidth={4} />
+          </div>
+          <div className="flex-1">
+            <h1 className="text-2xl md:text-3xl font-bold text-green-700">Pedido realizado com sucesso!</h1>
+            <p className="text-gray-600 mt-1">
+              Obrigado pela sua compra. Enviamos os detalhes para seu e-mail. Abaixo, o resumo do seu pedido.
+            </p>
+            <div className="mt-3 text-sm text-gray-500 flex flex-col sm:flex-row gap-2 sm:gap-4">
+              <span>
+                <strong>Nº do Pedido:</strong> {orderId}
+              </span>
+              <span className="hidden sm:inline">•</span>
+              <span>
+                <strong>Data:</strong> {dataPedido}
+              </span>
+            </div>
+          </div>
+
+          {/* Ações principais */}
+          <div className="flex items-center gap-2 print:hidden">
+            <button
+              onClick={handleImprimir}
+              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-gray-50 px-3 py-2 text-sm text-gray-700 cursor-pointer"
+            >
+              Imprimir
+            </button>
+            <button
+              onClick={() => router.push("/produtos")}
+              className="inline-flex items-center justify-center rounded-lg bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm cursor-pointer"
+            >
+              Voltar à loja
+            </button>
+          </div>
+        </div>
+
+        {/* Grid principal */}
+        <div className="grid md:grid-cols-12 gap-6">
+          {/* Card do Produto */}
+          <section className="md:col-span-7">
+            <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 h-full">
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">Dados do produto</h2>
+
+              <div className="flex flex-col sm:flex-row gap-5">
+                <div className="relative w-full sm:w-40 h-40 rounded-xl bg-gray-50 border border-gray-100 overflow-hidden">
+                  <Image
+                    src={produto.images?.[0] ?? "/placeholder.png"}
+                    alt={produto.productName}
+                    fill
+                    className="object-contain p-2"
+                    sizes="160px"
+                  />
+                </div>
+
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900">{produto.productName}</p>
+                  <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-gray-700">
+                    <span>
+                      Cor: <strong className="text-gray-900">{produto.color}</strong>
+                    </span>
+                    <span>
+                      Tamanho: <strong className="text-gray-900">{produto.size}</strong>
+                    </span>
+                    <span>
+                      Quantidade: <strong className="text-gray-900">1</strong>
+                    </span>
+                    <span>
+                      Preço: <strong className="text-gray-900">{precoFormatado}</strong>
+                    </span>
+                  </div>
+
+                  <div className="mt-4 border-t border-gray-200 pt-3 text-gray-900">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Subtotal</span>
+                      <span className="font-medium">{precoFormatado}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Frete</span>
+                      <span className="font-medium">Grátis</span>
+                    </div>
+                    <div className="flex justify-between text-lg font-semibold mt-2">
+                      <span>Total</span>
+                      <span>{precoFormatado}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Card de Entrega */}
+          <aside className="md:col-span-5">
+            <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 h-full">
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">Dados de entrega</h2>
+              <div className="text-gray-700 leading-relaxed space-y-2">
+                <div>
+                  <strong className="text-gray-900">Contato para entrega: </strong>
+                  <p className="capitalize">{entrega.contato_entrega}</p>
+                </div>
+                <p>
+                  <strong className="text-gray-900">Endereço: </strong>
+                  {entrega.logradouro}, {entrega.numero} — {entrega.bairro}
+                </p>
+                <p>
+                  <strong className="text-gray-900">Cidade/UF: </strong>
+                  {entrega.municipio} — {entrega.uf}
+                </p>
+                <p>
+                  <strong className="text-gray-900">CEP: </strong>
+                  {entrega.cep}
+                </p>
+              </div>
+
+              {/* Ajuda/Status */}
+              <div className="mt-6 rounded-xl bg-green-50 border border-green-100 p-4">
+                <p className="text-sm text-green-800">
+                  Seu pedido está sendo preparado. Você receberá atualizações no seu e-mail.
+                </p>
+              </div>
+
+              {/* CTAs secundárias */}
+              <div className="mt-6 flex flex-col sm:flex-row gap-2 print:hidden">
+                <button
+                  onClick={handleImprimir}
+                  className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-gray-50 px-4 py-2 text-sm text-gray-700 cursor-pointer"
+                >
+                  Imprimir comprovante
+                </button>
+                <button
+                  onClick={handleNovaCompra}
+                  className="inline-flex items-center justify-center rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm cursor-pointer"
+                >
+                  Nova compra
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        {/* Rodapé auxiliar (somente tela, não print) */}
+        <div className="mt-8 flex items-center justify-center gap-3 text-sm text-gray-500 print:hidden">
+          <span>Precisa de ajuda?</span>
+          <button className="text-blue-600 hover:underline cursor-pointer">Fale conosco</button>
+        </div>
+      </div>
+    </Container>
+  );
+}
