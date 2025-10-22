@@ -60,10 +60,30 @@ export default function PedidoSucesso() {
   }, [produto]);
 
   const dataPedido = useMemo(() => {
+    // Função auxiliar para adicionar dias úteis
+    function adicionarDiasUteis(data: Date, diasUteis: number): Date {
+      const novaData = new Date(data);
+      let diasAdicionados = 0;
+
+      while (diasAdicionados < diasUteis) {
+        novaData.setDate(novaData.getDate() + 1);
+        const diaSemana = novaData.getDay(); // 0 = domingo, 6 = sábado
+
+        if (diaSemana !== 0 && diaSemana !== 6) {
+          diasAdicionados++;
+        }
+      }
+
+      return novaData;
+    }
+
+    // Data atual + 7 dias úteis
+    const dataEntrega = adicionarDiasUteis(new Date(), 7);
+
+    // Formata no padrão brasileiro
     return new Intl.DateTimeFormat("pt-BR", {
       dateStyle: "long",
-      timeStyle: "short",
-    }).format(new Date());
+    }).format(dataEntrega);
   }, []);
 
   function handleImprimir() {
@@ -74,7 +94,7 @@ export default function PedidoSucesso() {
     // opcional: limpar dados do pedido atual
     // localStorage.removeItem("produtoSelecionado");
     // localStorage.removeItem("dadosEntrega");
-    router.push("/produtos");
+    router.push("/sign-in");
   }
 
   // Estado de carregamento (skeleton)
@@ -106,7 +126,7 @@ export default function PedidoSucesso() {
             <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-yellow-100 flex items-center justify-center">
               <span className="text-yellow-600 text-2xl">!</span>
             </div>
-            <h1 className="text-xl font-semibold text-gray-800 mb-2">Não encontramos os dados do pedido</h1>
+            <h1 className="text-xl font-semibold text-gray-800 mb-2">Não encontramos os dados da solicitação</h1>
             <p className="text-gray-600">
               Parece que esta página foi acessada sem finalizar a seleção do produto ou os dados de entrega.
             </p>
@@ -132,17 +152,18 @@ export default function PedidoSucesso() {
             <Check size={32} className="text-green-800" strokeWidth={4} />
           </div>
           <div className="flex-1">
-            <h1 className="text-2xl md:text-3xl font-bold text-green-700">Pedido realizado com sucesso!</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-green-700">Solicitação realizada com sucesso!</h1>
             <p className="text-gray-600 mt-1">
-              Obrigado pela sua compra. Enviamos os detalhes para seu e-mail. Abaixo, o resumo do seu pedido.
+              Sua entrega está sendo preparada, em breve retornaremos. Essa pagina é uma demonstração, toda a ação e
+              produtos são somente demonstrativos
             </p>
             <div className="mt-3 text-sm text-gray-500 flex flex-col sm:flex-row gap-2 sm:gap-4">
               <span>
-                <strong>Nº do Pedido:</strong> {orderId}
+                <strong>Nº da Solicitação:</strong> {orderId}
               </span>
               <span className="hidden sm:inline">•</span>
               <span>
-                <strong>Data:</strong> {dataPedido}
+                <strong>Previsão de entrega:</strong> {dataPedido}
               </span>
             </div>
           </div>
@@ -156,7 +177,7 @@ export default function PedidoSucesso() {
               Imprimir
             </button>
             <button
-              onClick={() => router.push("/produtos")}
+              onClick={() => router.push("/sign-in")}
               className="inline-flex items-center justify-center rounded-lg bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm cursor-pointer"
             >
               Voltar à loja
@@ -169,7 +190,7 @@ export default function PedidoSucesso() {
           {/* Card do Produto */}
           <section className="md:col-span-7">
             <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 h-full">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">Dados do produto</h2>
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">Sua Entrega</h2>
 
               <div className="flex flex-col sm:flex-row gap-5">
                 <div className="relative w-full sm:w-40 h-40 rounded-xl bg-gray-50 border border-gray-100 overflow-hidden">
@@ -195,7 +216,7 @@ export default function PedidoSucesso() {
                       Quantidade: <strong className="text-gray-900">1</strong>
                     </span>
                     <span>
-                      Preço: <strong className="text-gray-900">{precoFormatado}</strong>
+                      Valor: <strong className="text-gray-900">{precoFormatado}</strong>
                     </span>
                   </div>
 
@@ -206,7 +227,7 @@ export default function PedidoSucesso() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Frete</span>
-                      <span className="font-medium">Grátis</span>
+                      <span className="font-medium">Gratuito</span>
                     </div>
                     <div className="flex justify-between text-lg font-semibold mt-2">
                       <span>Total</span>
@@ -225,11 +246,11 @@ export default function PedidoSucesso() {
               <div className="text-gray-700 leading-relaxed space-y-2">
                 <div>
                   <strong className="text-gray-900">Contato para entrega: </strong>
-                  <p className="capitalize">{entrega.contato_entrega}</p>
+                  <p className="capitalize text-gray-700">{entrega.contato_entrega}</p>
                 </div>
-                <p>
+                <p className="text-gray-700">
                   <strong className="text-gray-900">Endereço: </strong>
-                  {entrega.logradouro}, {entrega.numero} — {entrega.bairro}
+                  {entrega.logradouro} — {entrega.bairro}
                 </p>
                 <p>
                   <strong className="text-gray-900">Cidade/UF: </strong>
@@ -243,9 +264,7 @@ export default function PedidoSucesso() {
 
               {/* Ajuda/Status */}
               <div className="mt-6 rounded-xl bg-green-50 border border-green-100 p-4">
-                <p className="text-sm text-green-800">
-                  Seu pedido está sendo preparado. Você receberá atualizações no seu e-mail.
-                </p>
+                <p className="text-sm text-green-800">Sua Solicitação está sendo preparada.</p>
               </div>
 
               {/* CTAs secundárias */}
@@ -260,7 +279,7 @@ export default function PedidoSucesso() {
                   onClick={handleNovaCompra}
                   className="inline-flex items-center justify-center rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm cursor-pointer"
                 >
-                  Nova compra
+                  Finalizar
                 </button>
               </div>
             </div>

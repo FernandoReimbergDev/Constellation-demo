@@ -2,12 +2,13 @@
 import Image from "next/image";
 import ImagemBG from "./assets/constellation.png";
 import Logo from "../../../assets/logo-color.png";
-import "./styles.css";
+import styles from "./styles.module.css";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useState } from "react";
+import Link from "next/link";
 
 // --- Validação com YUP ---
 const schema = yup.object({
@@ -48,7 +49,8 @@ export default function SignIn() {
       });
 
       if (res.ok) {
-        router.push("/produtos"); // ✅ redireciona no cliente
+        localStorage.setItem("nomeUsuario", data.nome);
+        router.push("/produtos");
       } else {
         setErrorMsg("Falha ao autenticar. Tente novamente.");
       }
@@ -61,30 +63,50 @@ export default function SignIn() {
   }
 
   return (
-    <div className="w-screen h-screen grid place-content-center">
-      <div className="card">
-        <div className="content">
-          <Image src={Logo} alt="imagem página de login, logo" width={150} height={150} />
-          <h2>Bem-vindo(a)!</h2>
-          <h3>Informe seu nome completo para receber seu brinde no endereço desejado.</h3>
+    <div className={`${styles.container} w-screen h-screen grid place-content-center`}>
+      <div className={styles.card}>
+        <div className={styles.content}>
+          <Image src={Logo} alt="Logo Unity Brindes" width={150} height={150} priority />
 
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
-            <input type="text" placeholder="Digite seu Nome Completo" {...register("nome")} disabled={loading} />
-            {errors.nome && <span className="error-msg">{errors.nome.message}</span>}
+          <h2 className={styles.title}>Bem-vindo(a)!</h2>
+          <h3 className={styles.subtitle}>Informe seu nome completo para acessar.</h3>
 
-            <button type="submit" disabled={loading}>
-              {loading ? "Entrando..." : "Entrar"}
+          <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+            <input
+              type="text"
+              placeholder="Digite seu Nome Completo"
+              {...register("nome")}
+              disabled={loading}
+              className={`${styles.inputSignIn} capitalize`}
+              aria-invalid={!!errors.nome}
+              aria-describedby={errors.nome ? "erro-nome" : undefined}
+            />
+            {errors.nome && (
+              <span id="erro-nome" className={styles.errorMsg} role="alert">
+                {errors.nome.message}
+              </span>
+            )}
+
+            <button type="submit" disabled={loading} className={styles.btnContinuar}>
+              {loading ? "Acessando..." : "Continuar"}
             </button>
           </form>
 
-          {errorMsg && <p className="error-msg">{errorMsg}</p>}
+          {errorMsg && (
+            <p className={styles.errorMsg} role="alert" aria-live="polite">
+              {errorMsg}
+            </p>
+          )}
 
-          <p>
-            Não conseguiu acessar? <a href="/">Fale Conosco</a>
+          <p className={styles.helper}>
+            Não conseguiu acessar?{" "}
+            <Link href="#" className={styles.link}>
+              Fale Conosco
+            </Link>
           </p>
         </div>
 
-        <Image src={ImagemBG} alt="imagem página de login, fundo" className="hidden md:block" />
+        <Image src={ImagemBG} alt="Constelação ao fundo" className={styles.bgImage} priority />
       </div>
     </div>
   );

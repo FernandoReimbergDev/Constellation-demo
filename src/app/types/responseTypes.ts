@@ -180,8 +180,8 @@ export type clienteDadosEntrega = {
   cnpj_cpf: string;
   razao_social: string;
   inscricao_estadual: string | null;
-  ddd: string;
-  telefone: string;
+  ddd?: string; // ← opcional
+  telefone?: string; // ← opcional (já estava, mantenha)
   informacoes_complementares: string | null;
 };
 
@@ -238,7 +238,7 @@ export type UsuarioContext = {
   cpf: string;
   cnpj: string;
   ie: string | null;
-  phones: TelefoneContext[] | null;
+  phones?: TelefoneContext[] | null;
   addresses: Address[] | null;
   endereco: EnderecoContext;
 };
@@ -320,7 +320,7 @@ export interface Usuario {
   isActive: string;
   createdAt: string;
   updatedAt: string;
-  phones: Telefone[];
+  phones?: Telefone[];
   addresses: Endereco[];
   rules: Regra[];
 }
@@ -328,8 +328,8 @@ export interface Usuario {
 export interface Telefone {
   id: string;
   countryCode: string;
-  areaCode: string;
-  number: string;
+  areaCode?: string;
+  number?: string;
   extension: string;
   label: string;
   isWhatsapp: string;

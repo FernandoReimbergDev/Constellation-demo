@@ -4,9 +4,6 @@
   --color-border: #a9a9a9;
 }
 
-* {
-  box-sizing: border-box;
-}
 
 .card {
   display: flex;
@@ -37,8 +34,8 @@
   margin-bottom: 40px;
 }
 
-h2,
-h3 {
+.card h2,
+.card h3 {
   margin: 0;
 }
 
@@ -58,8 +55,8 @@ h3 {
   padding: 0;
 }
 
-input,
-button {
+.inputSignIn,
+.btnContinuar {
   font-size: 16px;
   display: block;
   padding: 0 16px;
@@ -68,7 +65,7 @@ button {
   outline-color: var(--color-primary);
 }
 
-form>input {
+.inputSignIn {
   width: 100%;
   margin-bottom: 10px;
   color: inherit;
@@ -76,11 +73,11 @@ form>input {
   background: transparent;
 }
 
-form>input::placeholder {
+.card .inputSignIn::placeholder {
   color: var(--color-muted);
 }
 
-form .row {
+.card form .row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -88,7 +85,7 @@ form .row {
   margin-bottom: 40px;
 }
 
-form a {
+.card form a {
   color: var(--color-muted);
   font-size: 14px;
   white-space: nowrap;
@@ -141,7 +138,7 @@ form a {
   color: #7e7e7e;
 }
 
-form>button {
+.btnContinuar {
   color: #ffffff;
   background: var(--color-primary);
   border: 0;
@@ -149,13 +146,13 @@ form>button {
   cursor: pointer;
 }
 
-p {
+.card p {
   font-size: 14px;
   margin-top: 30px;
   color: var(--color-muted);
 }
 
-p a {
+.card p a {
   color: var(--color-primary);
 }
 
@@ -200,7 +197,7 @@ p a {
     transition: none;
   }
 
-  form button {
+  .btnContinuar {
     width: 100%;
   }
 

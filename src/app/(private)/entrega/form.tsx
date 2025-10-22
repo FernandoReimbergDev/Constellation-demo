@@ -25,9 +25,12 @@ export function FormDadosEntrega() {
     setError,
     clearErrors,
     formState: { errors },
-  } = useForm<DadosEntregaFormData>({
+  } = useForm({
     resolver: yupResolver(DadosEntregaSchema),
     mode: "onChange",
+    defaultValues: {
+      contato_entrega: typeof window !== "undefined" ? localStorage.getItem("nomeUsuario") ?? "" : "",
+    },
   });
   const cep = watch("cep");
   const [showForm, setShowForm] = useState(false);
@@ -280,7 +283,7 @@ export function FormDadosEntrega() {
                       text-white cursor-pointer
                       transition-colors duration-200 ${submitting ? "bg-gray-400" : "bg-green-500"}`}
                   >
-                    {submitting ? `'ENVIANDO...'` : "CONCLUIR PEDIDO"}
+                    {submitting ? `'ENVIANDO...'` : "CONCLUIR SOLICITAÇÃO"}
                   </button>
                 </div>
               </section>
